@@ -1,10 +1,15 @@
 export const TOPICS = [
-  {id:'tax',label:'Tax',color:'#d97706',bg:'rgba(217,119,6,.12)',keywords:['tax','irs','tcja','deduction','credit','section 174','section 199','amt','pillar two','gilti','beat','fdii','salt','nexus','estate tax','transfer pricing','depreciation','withholding','1099','income tax']},
-  {id:'audit',label:'Audit',color:'#2563eb',bg:'rgba(37,99,235,.12)',keywords:['audit','assurance','internal control','sox','pcaob','fasb','gaap','restatement','material weakness','asc 842','asc 606','lease','revenue recognition','fraud','forensic','financial reporting']},
-  {id:'advisory',label:'Advisory',color:'#7c3aed',bg:'rgba(124,58,237,.12)',keywords:['advisory','consulting','strategy','transaction','valuation','restructuring','turnaround','cfo','governance','risk advisory','due diligence','post-merger','transformation']},
-  {id:'esg',label:'ESG',color:'#059669',bg:'rgba(5,150,105,.12)',keywords:['esg','climate','sustainability','sec climate','carbon','net zero','renewable','environment','social','governance','csrd','tcfd','green','disclosure']},
-  {id:'ma',label:'M&A',color:'#dc2626',bg:'rgba(220,38,38,.12)',keywords:['m&a','merger','acquisition','deal','private equity','pe','lbo','buyout','exit','ipo','transaction advisory','qoe','quality of earnings','purchase price','ppa']},
-  {id:'tech',label:'Technology',color:'#0891b2',bg:'rgba(8,145,178,.12)',keywords:['ai','artificial intelligence','technology','digital','automation','erp','cloud','data','analytics','machine learning','cybersecurity','crypto','blockchain','digital asset','fintech']},
-  {id:'realestate',label:'Real Estate',color:'#b45309',bg:'rgba(180,83,9,.12)',keywords:['real estate','property','reit','lease','construction','development','commercial real estate','cre','housing','multifamily','cap rate','noi']},
-  {id:'risk',label:'Risk',color:'#9333ea',bg:'rgba(147,51,234,.12)',keywords:['risk','compliance','regulatory','regulation','enforcement','penalty','internal audit','sox','control','cybersecurity','data breach']},
+  { id: 'tax', label: 'Tax & Compliance', color: '#d97706', bg: 'rgba(217,119,6,.12)', icon: '🏛️', keywords: ['tax', 'irs', 'tcja', 'deduction', 'credit', 'compliance', 'filing', 'withholding', '1099', 'income tax'] },
+  { id: 'acc', label: 'Accounting & Auditing', color: '#2563eb', bg: 'rgba(37,99,235,.12)', icon: '📊', keywords: ['audit', 'accounting', 'gaap', 'fasb', 'pcaob', 'sox', 'restatement', 'financial reporting', 'cpa'] },
+  { id: 'fin', label: 'Finance & Investment', color: '#059669', bg: 'rgba(5,150,105,.12)', icon: '💹', keywords: ['finance', 'investment', 'market', 'stock', 'bond', 'fed', 'sec', 'banking', 'interest rate', 'ipo'] },
+  { id: 'law', label: 'Corporate Law & Regulatory', color: '#dc2626', bg: 'rgba(220,38,38,.12)', icon: '⚖️', keywords: ['law', 'legal', 'regulatory', 'regulation', 'ftc', 'doj', 'enforcement', 'litigation', 'court'] },
+  { id: 'hr', label: 'HR Payroll & Labor', color: '#7c3aed', bg: 'rgba(124,58,237,.12)', icon: '👥', keywords: ['hr', 'payroll', 'labor', 'employment', 'hiring', 'salary', 'benefits', 'workforce', 'osha', 'dol'] },
+  { id: 'cys', label: 'Risk Fraud & Cybersecurity', color: '#0891b2', bg: 'rgba(8,145,178,.12)', icon: '🛡️', keywords: ['cyber', 'security', 'fraud', 'risk', 'breach', 'hack', 'ransomware', 'cisa', 'vulnerability'] },
+  { id: 'tec', label: 'Technology & AI in Business', color: '#e11d48', bg: 'rgba(225,29,72,.12)', icon: '🤖', keywords: ['ai', 'technology', 'digital', 'automation', 'cloud', 'machine learning', 'saas', 'blockchain'] },
+  { id: 'str', label: 'Business Strategy & Management', color: '#ea580c', bg: 'rgba(234,88,12,.12)', icon: '🎯', keywords: ['strategy', 'management', 'consulting', 'leadership', 'transformation', 'growth', 'ceo'] },
+  { id: 'dat', label: 'Data Analytics & Reporting', color: '#4f46e5', bg: 'rgba(79,70,229,.12)', icon: '📈', keywords: ['data', 'analytics', 'reporting', 'dashboard', 'business intelligence', 'census', 'statistics'] },
+  { id: 'wlt', label: 'Wealth Retirement & Estate', color: '#0d9488', bg: 'rgba(13,148,136,.12)', icon: '💎', keywords: ['wealth', 'retirement', 'estate', 'planning', 'trust', 'pension', '401k', 'ira', 'investment'] },
 ];
+
+export const TOPIC_MAP = {};
+TOPICS.forEach(t => { TOPIC_MAP[t.id] = t; });

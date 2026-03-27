@@ -1,19 +1,16 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from './hooks/useAuth';
 import { useFeed } from './hooks/useFeed';
 import { useClickTracking } from './hooks/useClickTracking';
+import { useBookmarks } from './hooks/useBookmarks';
+import { useReadHistory } from './hooks/useReadHistory';
+import { classifyArticle } from './utils/helpers';
 import ProgressBar from './components/ProgressBar';
 import Header from './components/Header';
-import TabNav from './components/TabNav';
-import Hero from './components/Hero';
-import DailyBriefing from './components/DailyBriefing';
-import StoryThreads from './components/StoryThreads';
-import DiscoveryPanel from './components/DiscoveryPanel';
 import Controls from './components/Controls';
 import FeedSection from './components/FeedSection';
 import AuthScreen from './components/AuthScreen';
 import MyFeed from './components/MyFeed';
-import SourcesFooter from './components/SourcesFooter';
 import Footer from './components/Footer';
 import './index.css';
 
@@ -21,20 +18,27 @@ function App() {
   const { user, login, signup, demoLogin, logout } = useAuth();
   const { newsArticles, insightArticles, progress, isLive, loadingText, startFetch } = useFeed();
   const { clickedTopics, trackClick } = useClickTracking();
+  const bookmarks = useBookmarks();
+  const readHistory = useReadHistory();
 
   const [screen, setScreen] = useState('public');
-  const [activeTab, setActiveTab] = useState('news');
-  const [selectedSources, setSelectedSources] = useState(new Set());
   const [selectedTopics, setSelectedTopics] = useState(new Set());
   const [searchQ, setSearchQ] = useState('');
 
-  // Start fetching RSS on mount
-  useEffect(() => {
-    startFetch();
-  }, [startFetch]);
+  useEffect(() => { startFetch(); }, [startFetch]);
 
-  const allArticles = [...newsArticles, ...insightArticles];
+  const allArticles = useMemo(() => [...newsArticles, ...insightArticles], [newsArticles, insightArticles]);
   const articleCount = allArticles.length;
+
+  // Topic counts for the topic bar
+  const topicCounts = useMemo(() => {
+    const counts = {};
+    allArticles.forEach(a => {
+      const tid = a.topicId || classifyArticle(a.title, a.description)?.id;
+      if (tid) counts[tid] = (counts[tid] || 0) + 1;
+    });
+    return counts;
+  }, [allArticles]);
 
   const goPublic = useCallback(() => setScreen('public'), []);
   const goMyFeed = useCallback(() => {
@@ -54,22 +58,16 @@ function App() {
     return result;
   }, [signup]);
 
-  const handleDemoLogin = useCallback(() => {
-    demoLogin();
-    setScreen('myfeed');
-  }, [demoLogin]);
+  const handleDemoLogin = useCallback(() => { demoLogin(); setScreen('myfeed'); }, [demoLogin]);
+  const handleLogout = useCallback(() => { logout(); setScreen('public'); }, [logout]);
 
-  const handleLogout = useCallback(() => {
-    logout();
-    setScreen('public');
-  }, [logout]);
-
-  const handleTopicFilter = useCallback((topicId) => {
-    setSelectedTopics(new Set([topicId]));
-  }, []);
+  const handleBookmark = useCallback((id) => {
+    if (!user) { setScreen('auth'); return; }
+    bookmarks.toggle(id);
+  }, [user, bookmarks]);
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', paddingLeft: 320, paddingRight: 320 }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <ProgressBar progress={progress} />
       <Header
         screen={screen}
@@ -80,67 +78,43 @@ function App() {
         articleCount={articleCount}
         user={user}
         onLogout={handleLogout}
+        searchQ={searchQ}
+        onSearchChange={setSearchQ}
       />
 
-      {/* Public Feed */}
       {screen === 'public' && (
         <>
-          <TabNav
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-            newsCount={newsArticles.length}
-            insightsCount={insightArticles.length}
-          />
-          <Hero />
-          <DailyBriefing articles={allArticles} />
-          <StoryThreads articles={allArticles} clickedTopics={clickedTopics} onTopicFilter={handleTopicFilter} />
-          <DiscoveryPanel articles={allArticles} clickedTopics={clickedTopics} onTopicFilter={handleTopicFilter} />
           <Controls
-            onSearchChange={setSearchQ}
-            selectedSources={selectedSources}
-            onSourcesChange={setSelectedSources}
             selectedTopics={selectedTopics}
             onTopicsChange={setSelectedTopics}
+            topicCounts={topicCounts}
+            articleCount={articleCount}
           />
 
-          {activeTab === 'news' && (
-            <FeedSection
-              articles={newsArticles}
-              allArticles={allArticles}
-              clickedTopics={clickedTopics}
-              searchQ={searchQ}
-              selectedSources={selectedSources}
-              selectedTopics={selectedTopics}
-              onTopicClick={trackClick}
-              type="news"
-              isLive={isLive}
-            />
-          )}
-          {activeTab === 'insights' && (
-            <FeedSection
-              articles={insightArticles}
-              allArticles={allArticles}
-              clickedTopics={clickedTopics}
-              searchQ={searchQ}
-              selectedSources={selectedSources}
-              selectedTopics={selectedTopics}
-              onTopicClick={trackClick}
-              type="insights"
-              isLive={isLive}
-            />
-          )}
-          <SourcesFooter selectedSources={selectedSources} onSourcesChange={setSelectedSources} />
+          <FeedSection
+            articles={allArticles}
+            allArticles={allArticles}
+            clickedTopics={clickedTopics}
+            searchQ={searchQ}
+            selectedSources={new Set()}
+            selectedTopics={selectedTopics}
+            onTopicClick={trackClick}
+            type="all"
+            isLive={isLive}
+            onBookmark={handleBookmark}
+            isBookmarked={bookmarks.isBookmarked}
+            onArticleRead={readHistory.markRead}
+            isRead={readHistory.isRead}
+          />
         </>
       )}
 
-      {/* Auth Screen */}
       {screen === 'auth' && (
         <AuthScreen onLogin={handleLogin} onSignup={handleSignup} onDemoLogin={handleDemoLogin} />
       )}
 
-      {/* My Feed */}
       {screen === 'myfeed' && user && (
-        <MyFeed user={user} />
+        <MyFeed user={user} allArticles={allArticles} />
       )}
 
       <Footer />

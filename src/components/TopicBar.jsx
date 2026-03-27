@@ -1,30 +1,53 @@
 import { TOPICS } from '../data/topics';
 
-export default function TopicBar({ activeTopic, onTopicChange }) {
+export default function TopicBar({ activeTab, onTabChange, newsCount, insightsCount, selectedTopics, onTopicsChange, topicCounts = {} }) {
+  const toggleTopic = (id) => {
+    const next = new Set(selectedTopics);
+    if (next.has(id)) next.delete(id); else next.add(id);
+    onTopicsChange(next);
+  };
+
+  const totalForTab = activeTab === 'news' ? newsCount : insightsCount;
+
   return (
-    <div style={{ padding: '0 clamp(1rem, 4vw, 3rem)', marginTop: 10 }}>
-      <div className="no-scrollbar" style={{ display: 'flex', gap: 7, overflowX: 'auto', paddingBottom: 4, alignItems: 'center' }}>
-        <span style={{ fontSize: 11, color: 'var(--tf)', fontWeight: 500, whiteSpace: 'nowrap', flexShrink: 0 }}>Topics:</span>
-        <button
-          className={`topic-chip ${activeTopic === 'all' ? 'active' : ''}`}
-          style={activeTopic === 'all' ? { background: 'var(--text)', color: '#F5F2EC', borderColor: 'var(--text)' } : {}}
-          onClick={() => onTopicChange('all')}
-        >
-          All Topics
-        </button>
-        {TOPICS.map(t => (
-          <button
-            key={t.id}
-            className={`topic-chip ${activeTopic === t.id ? 'active' : ''}`}
-            style={activeTopic === t.id
-              ? { background: t.bg, color: t.color, borderColor: t.color }
-              : { color: t.color, borderColor: `${t.color}30` }}
-            onClick={() => onTopicChange(t.id)}
-          >
-            <span style={{ width: 7, height: 7, borderRadius: '50%', background: t.color, display: 'inline-block' }} />
-            {t.label}
+    <div className="topicbar">
+      <div className="topicbar-inner">
+        <div className="topicbar-tabs">
+          <button className={`topicbar-tab ${activeTab === 'news' ? 'active' : ''}`} onClick={() => onTabChange('news')}>
+            News <span className="topicbar-count">{newsCount}</span>
           </button>
-        ))}
+          <button className={`topicbar-tab ${activeTab === 'insights' ? 'active' : ''}`} onClick={() => onTabChange('insights')}>
+            Insights <span className="topicbar-count">{insightsCount}</span>
+          </button>
+        </div>
+
+        <div className="topicbar-divider" />
+
+        <div className="topicbar-pills no-scrollbar">
+          <button
+            className={`tp ${selectedTopics.size === 0 ? 'active' : ''}`}
+            onClick={() => onTopicsChange(new Set())}
+          >
+            All
+            <span className="tp-count">{totalForTab}</span>
+          </button>
+          {TOPICS.map(t => {
+            const count = topicCounts[t.id] || 0;
+            if (count === 0) return null;
+            return (
+              <button
+                key={t.id}
+                className={`tp ${selectedTopics.has(t.id) ? 'active' : ''}`}
+                style={selectedTopics.has(t.id) ? { '--tp-color': t.color } : {}}
+                onClick={() => toggleTopic(t.id)}
+              >
+                <span className="tp-dot" style={{ background: t.color }} />
+                {t.label}
+                <span className="tp-count">{count}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

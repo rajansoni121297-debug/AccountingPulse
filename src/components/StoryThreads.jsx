@@ -20,9 +20,9 @@ export default function StoryThreads({ articles, clickedTopics, onTopicFilter })
   if (!chips.length) return null;
 
   return (
-    <div style={{ padding: '0 clamp(1rem, 4vw, 3rem)', marginTop: 20 }}>
+    <div style={{ maxWidth: 'var(--max-w)', margin: '0 auto', padding: '0 24px', marginTop: 20 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-        <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '1.2px', color: 'var(--ad)', textTransform: 'uppercase' }}>🧵 Continue Reading</span>
+        <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '1px', color: 'var(--accent)', textTransform: 'uppercase' }}>Continue Reading</span>
         <span style={{ fontSize: 12, color: 'var(--tf)' }}>Topics you've explored — new updates available</span>
       </div>
       <div className="no-scrollbar" style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 6 }}>

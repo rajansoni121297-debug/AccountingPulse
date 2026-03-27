@@ -1,67 +1,72 @@
-import { useMemo } from 'react';
-import { classifyArticle } from '../utils/helpers';
-import { TOPICS } from '../data/topics';
+import { useMemo, useEffect, useState } from 'react';
+import { TOPICS, TOPIC_MAP } from '../data/topics';
 import { SOURCES } from '../data/sources';
+import { fetchTopicSummary } from '../api/articles';
 
 export default function DiscoveryPanel({ articles, clickedTopics, onTopicFilter }) {
-  const { trending, unexplored, suggestTopics } = useMemo(() => {
-    const tc = {};
-    articles.forEach(a => {
-      const t = classifyArticle(a.title, a.description);
-      if (t) tc[t.id] = (tc[t.id] || 0) + 1;
-    });
-    const sorted = Object.entries(tc).sort((a, b) => b[1] - a[1]).slice(0, 6);
+  const [topicCounts, setTopicCounts] = useState({});
+
+  useEffect(() => {
+    fetchTopicSummary().then(setTopicCounts).catch(() => {});
+  }, []);
+
+  const trending = useMemo(() => {
+    const sorted = Object.entries(topicCounts).sort((a, b) => b[1] - a[1]).slice(0, 6);
     const maxC = sorted[0]?.[1] || 1;
-    const trending = sorted.map(([tid, cnt]) => ({ topic: TOPICS.find(x => x.id === tid), count: cnt, pct: Math.round(cnt / maxC * 100) })).filter(x => x.topic);
-    const unexplored = SOURCES.slice(0, 4);
-    const suggestTopics = TOPICS.filter(t => !clickedTopics.has(t.id)).slice(0, 8);
-    return { trending, unexplored, suggestTopics };
-  }, [articles, clickedTopics]);
+    return sorted.map(([tid, cnt]) => {
+      const topic = TOPIC_MAP[tid];
+      return topic ? { topic, count: cnt, pct: Math.round(cnt / maxC * 100) } : null;
+    }).filter(Boolean);
+  }, [topicCounts]);
 
-  if (!trending.length && !unexplored.length && !suggestTopics.length) return null;
-
+  const unexplored = SOURCES.slice(0, 4);
+  const suggestTopics = TOPICS.filter(t => !clickedTopics.has(t.id)).slice(0, 10);
   const firmColors = ['#86BC25', '#D04A02', '#00338D', '#CC0000', '#562D82', '#C8102E'];
 
+  if (!trending.length && !suggestTopics.length) return null;
+
   return (
-    <div style={{ padding: '0 clamp(1rem, 4vw, 3rem)', marginTop: 20 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 14 }} className="disc-grid-responsive">
+    <div className="discovery-wrap">
+      <div className="discovery-grid">
         {trending.length > 0 && (
           <div className="disc-card">
-            <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 12, color: 'var(--ad)' }}>📈 Trending This Week</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <div className="disc-card-title">Trending This Week</div>
+            <div className="disc-trending-list">
               {trending.map(({ topic, count, pct }) => (
-                <div key={topic.id} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }} onClick={() => onTopicFilter(topic.id)}>
-                  <span style={{ fontSize: 12, fontWeight: 500, color: topic.color, width: 88, flexShrink: 0 }}>{topic.label}</span>
-                  <div style={{ flex: 1, height: 4, background: '#F0EDE8', borderRadius: 2, overflow: 'hidden' }}>
-                    <div style={{ height: '100%', borderRadius: 2, background: topic.color, width: `${pct}%`, transition: 'width 0.6s ease' }} />
+                <div key={topic.id} className="disc-trending-row" onClick={() => onTopicFilter(topic.id)}>
+                  <span className="disc-trending-label" style={{ color: topic.color }}>{topic.label}</span>
+                  <div className="disc-trending-bar">
+                    <div className="disc-trending-fill" style={{ width: `${pct}%`, background: topic.color }} />
                   </div>
-                  <span style={{ fontSize: '10.5px', color: 'var(--tf)', width: 32, textAlign: 'right', flexShrink: 0 }}>{count}</span>
+                  <span className="disc-trending-count">{count}</span>
                 </div>
               ))}
             </div>
           </div>
         )}
+
         {unexplored.length > 0 && (
           <div className="disc-card">
-            <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 12, color: '#2563eb' }}>🔭 Firms to Explore</div>
-            {unexplored.map((s, i) => (
-              <div key={s.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '7px 0', borderBottom: i < unexplored.length - 1 ? '1px solid #F0EDE8' : 'none', gap: 8 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
-                  <div style={{ width: 26, height: 26, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, flexShrink: 0, color: '#fff', background: firmColors[i % firmColors.length] }}>{s.abbr}</div>
-                  <div style={{ fontSize: '12.5px', fontWeight: 500, color: 'var(--text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.name}</div>
+            <div className="disc-card-title">Firms to Explore</div>
+            <div className="disc-firms-list">
+              {unexplored.map((s, i) => (
+                <div key={s.id} className="disc-firm-row">
+                  <div className="disc-firm-badge" style={{ background: firmColors[i % firmColors.length] }}>{s.abbr}</div>
+                  <span className="disc-firm-name">{s.name}</span>
+                  <button className="disc-firm-btn">Explore</button>
                 </div>
-                <button style={{ flexShrink: 0, padding: '3px 10px', borderRadius: 'var(--rp)', fontSize: 11, fontWeight: 500, cursor: 'pointer', background: 'transparent', border: '1.5px solid var(--border)', color: 'var(--tm)', fontFamily: "'Outfit', sans-serif" }}>Explore</button>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         )}
+
         {suggestTopics.length > 0 && (
           <div className="disc-card">
-            <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 12, color: '#7c3aed' }}>✦ Topics to Follow</div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', margin: -3 }}>
+            <div className="disc-card-title">Topics to Follow</div>
+            <div className="disc-topics-grid">
               {suggestTopics.map(t => (
-                <button key={t.id} className="topic-chip" style={{ borderColor: `${t.color}25`, margin: 3 }} onClick={() => onTopicFilter(t.id)}>
-                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: t.color, display: 'inline-block' }} />
+                <button key={t.id} className="disc-topic-chip" onClick={() => onTopicFilter(t.id)}>
+                  <span className="disc-topic-dot" style={{ background: t.color }} />
                   {t.label}
                 </button>
               ))}

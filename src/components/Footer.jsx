@@ -1,17 +1,34 @@
 export default function Footer() {
   return (
     <footer className="app-footer">
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{ width: 22, height: 22, background: 'var(--accent)', borderRadius: 5, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, padding: 4 }}>
-            <div style={{ borderRadius: 1, background: '#0F0A05' }} />
-            <div style={{ borderRadius: 1, background: '#0F0A05', opacity: 0.5 }} />
-            <div style={{ borderRadius: 1, background: '#0F0A05', opacity: 0.5 }} />
-            <div style={{ borderRadius: 1, background: '#0F0A05' }} />
+      <div className="footer-inner">
+        <div className="footer-top">
+          <div className="footer-brand">
+            <div className="footer-logo-box">
+              <div className="footer-logo-dot" />
+              <div className="footer-logo-dot dim" />
+              <div className="footer-logo-dot dim" />
+              <div className="footer-logo-dot" />
+            </div>
+            <span className="footer-brand-name">AccountingPulse</span>
           </div>
-          <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 14, fontWeight: 700, color: '#F5F2EC' }}>AccountingPulse</span>
+          <nav className="footer-nav">
+            <span className="footer-link">Topics</span>
+            <span className="footer-link">Search</span>
+            <span className="footer-link">Privacy</span>
+            <span className="footer-link">Terms</span>
+            <span className="footer-link">DMCA</span>
+          </nav>
+          <span className="footer-copyright">
+            &copy; {new Date().getFullYear()} AccountingPulse. Content sourced from public feeds. All articles link to their original source.
+          </span>
         </div>
-        <span style={{ fontSize: 11, color: '#5A5450' }}>© {new Date().getFullYear()} AccountingPulse · All articles belong to their respective publishers</span>
+        <div className="footer-legal">
+          <p className="footer-legal-title">Content Attribution & Legal Notice:</p>
+          <p className="footer-legal-text">
+            AccountingPulse aggregates headlines and summaries from publicly available RSS feeds and government press releases. All content remains the intellectual property of its respective publishers. We display article titles, brief summaries, source attribution, and direct links to original articles. Articles are archived after 30 days.
+          </p>
+        </div>
       </div>
     </footer>
   );

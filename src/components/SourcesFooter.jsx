@@ -11,7 +11,7 @@ export default function SourcesFooter({ selectedSources, onSourcesChange }) {
   return (
     <section className="sources-section">
       <div>
-        <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 14, fontWeight: 600, color: '#6B5E4A', marginBottom: 14, letterSpacing: '0.5px', textTransform: 'uppercase' }}>Content Sources</p>
+        <p style={{ fontSize: 12, fontWeight: 700, color: 'var(--tm)', marginBottom: 14, letterSpacing: '0.5px', textTransform: 'uppercase' }}>Content Sources</p>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
           {SOURCES.map(s => (
             <button key={s.id} className={`src-pill ${selectedSources.has(s.id) ? 'active' : ''}`} onClick={() => toggle(s.id)}>
@@ -19,7 +19,7 @@ export default function SourcesFooter({ selectedSources, onSourcesChange }) {
             </button>
           ))}
         </div>
-        <p style={{ fontSize: 11, color: 'var(--tf)', marginTop: 12, lineHeight: 1.65 }}>
+        <p style={{ fontSize: 12, color: 'var(--tf)', marginTop: 12, lineHeight: 1.65 }}>
           All content belongs to their respective publishers. AccountingPulse aggregates publicly available feeds and redirects readers to the original source.
         </p>
       </div>
